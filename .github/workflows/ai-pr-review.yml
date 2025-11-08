@@ -26,13 +26,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install @octokit/rest openai
+          npm install openai
 
       - name: Run AI PR Review
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           node tools/ai-pr-review.js

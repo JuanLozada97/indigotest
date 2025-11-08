@@ -19,6 +19,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    DataSeeder.SeedAsync(ctx).GetAwaiter().GetResult();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

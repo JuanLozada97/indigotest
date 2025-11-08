@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Application.Contracts;
 using Application.Services;
+using Application.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Api.Controllers;
 
 [ApiController]
 [Route("api/products")]
+[Authorize]
 public class ProductController : ControllerBase
 {
     private readonly ProductService _productService;

@@ -95,9 +95,10 @@ Si deseas usar Azure Blob Storage para imágenes:
 
 ```json
 {
-  "AzureStorage": {
-    "ConnectionString": "tu-connection-string-de-azure",
-    "ContainerName": "product-images"
+  "BlobStorage": {
+    "BaseUrl": "tu-connection-string-de-azure",
+    "ContainerName": "product-images",
+    "SasToken": "sp=...."
   }
 }
 ```
@@ -117,8 +118,8 @@ Si deseas usar Azure Blob Storage para imágenes:
    ```
 
 3. **Acceder a la API**
-   - API: `http://localhost:5000` o `https://localhost:5001`
-   - Swagger UI: `http://localhost:5000/swagger`
+   - API: `http://localhost:5202`
+   - Swagger UI: `http://localhost:5202/swagger`
 
 ### Con Visual Studio
 
@@ -153,8 +154,7 @@ dotnet ef database update --project ../Infrastructure --startup-project ../Api
 
 La aplicación incluye un `DataSeeder` que crea usuarios de prueba al iniciar:
 
-- **Admin**: `admin` / `admin123`
-- **User**: `user` / `user123`
+- **User**: `admin` / `admin123`
 
 ## 📁 Estructura del Proyecto
 

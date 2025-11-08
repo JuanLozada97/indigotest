@@ -69,10 +69,10 @@ Frontend moderno y responsive desarrollado con React que permite:
 Crea un archivo `.env` en la raíz del proyecto frontend (opcional):
 
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=http://localhost:5202
 ```
 
-El cliente API está configurado por defecto para conectarse a `http://localhost:5000`. Si necesitas cambiar la URL del backend, edita `src/api/client.ts`.
+El cliente API está configurado por defecto para conectarse a `http://localhost:5202`. Si necesitas cambiar la URL del backend, edita `src/api/client.ts`.
 
 ## ▶️ Ejecución
 

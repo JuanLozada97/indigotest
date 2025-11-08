@@ -41,6 +41,7 @@ public static class DataSeeder
             });
         }
 
+        await context.SaveChangesAsync(cancellationToken);
     }
     private static void CreateUserWithPassword(string username, string password, string role, out User user, out string plainPassword)
     {

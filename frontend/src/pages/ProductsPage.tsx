@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext.js";
 import {
   getProducts,
@@ -153,9 +154,25 @@ export function ProductsPage() {
   return (
     <div className="min-h-screen bg-slate-900 text-gray-100 flex flex-col">
       <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/80">
-        <h1 className="text-xl font-semibold text-indigo-400">
-          Productos
-        </h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-xl font-semibold text-indigo-400">
+            Productos
+          </h1>
+          <nav className="flex gap-2">
+            <Link
+              to="/products"
+              className="px-3 py-1 rounded text-sm bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+            >
+              Productos
+            </Link>
+            <Link
+              to="/sales"
+              className="px-3 py-1 rounded text-sm hover:bg-slate-800 text-gray-300 border border-slate-600"
+            >
+              Ventas
+            </Link>
+          </nav>
+        </div>
         <div className="flex items-center gap-3 text-sm">
           {user && (
             <span className="text-gray-300">

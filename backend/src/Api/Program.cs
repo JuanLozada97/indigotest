@@ -87,9 +87,11 @@ builder.Services
 builder.Services.AddAuthorization();
 // Repositories
 builder.Services.AddScoped<Application.Contracts.IProductRepository, Infrastructure.Persistence.Repositories.ProductRepository>();
+builder.Services.AddScoped<Application.Contracts.ISaleRepository, Infrastructure.Persistence.Repositories.SaleRepository>();
 
 // Services
 builder.Services.AddScoped<Application.Services.ProductService>();
+builder.Services.AddScoped<Application.Services.SaleService>();
 
 var app = builder.Build();
 

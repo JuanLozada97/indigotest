@@ -13,9 +13,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", p =>
-        p.WithOrigins("http://localhost:5173")
+        p.WithOrigins(
+            "http://localhost:5173",           // Desarrollo local
+            "http://localhost:80",             // Docker frontend (puerto 80)
+            "http://frontend:80"               // Docker network
+        )
          .AllowAnyHeader()
-         .AllowAnyMethod());
+         .AllowAnyMethod()
+         .AllowCredentials());
 });
 // Controllers + Swagger
 builder.Services.AddControllers();

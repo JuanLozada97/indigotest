@@ -263,6 +263,46 @@ curl -X GET http://localhost:5000/api/products \
   -H "Authorization: Bearer {tu-token}"
 ```
 
+## 🐳 Docker
+
+### Ejecutar con Docker Compose
+
+La forma más fácil de ejecutar el backend es usando Docker Compose desde la raíz del proyecto:
+
+```bash
+# Desde la raíz del proyecto
+docker-compose up backend
+```
+
+### Construir imagen Docker manualmente
+
+```bash
+# Desde el directorio backend
+docker build -t indigotest-backend .
+```
+
+### Ejecutar contenedor Docker
+
+```bash
+docker run -d \
+  -p 5202:8080 \
+  -v $(pwd)/src/data:/app/data \
+  -e ASPNETCORE_ENVIRONMENT=Development \
+  -e ConnectionStrings__DefaultConnection="Data Source=/app/data/app.db" \
+  -e Jwt__Key="tu-clave-secreta" \
+  indigotest-backend
+```
+
+### Ejecutar migraciones en Docker
+
+```bash
+# Ejecutar migraciones dentro del contenedor
+docker-compose exec backend dotnet ef migrations add NombreMigracion --project /app/src/Infrastructure --startup-project /app/src/Api
+
+# Aplicar migraciones
+docker-compose exec backend dotnet ef database update --project /app/src/Infrastructure --startup-project /app/src/Api
+```
+
 ## 🏗️ Producción
 
 ### Build

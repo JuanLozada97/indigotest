@@ -10,6 +10,7 @@ Sistema completo de gestión de inventario y ventas desarrollado con .NET 8 (Bac
 - [Requisitos Previos](#-requisitos-previos)
 - [Instalación](#-instalación)
 - [Ejecución](#-ejecución)
+- [🐳 Docker](#-docker)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Documentación API](#-documentación-api)
 - [Capturas de Pantalla](#-capturas-de-pantalla)
@@ -124,11 +125,118 @@ Ver las instrucciones específicas en los README de cada módulo:
 - [Backend README](./backend/README.md#producción)
 - [Frontend README](./frontend/README.md#producción)
 
+## 🐳 Docker
+
+### Requisitos
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado
+- Docker Compose v2 (incluido en Docker Desktop)
+
+### Ejecutar con Docker
+
+La forma más fácil de ejecutar el proyecto es usando Docker Compose:
+
+1. **Clonar el repositorio** (si aún no lo has hecho)
+   ```bash
+   git clone <url-del-repositorio>
+   cd indigotest
+   ```
+
+2. **Crear archivo .env** (opcional, para personalizar configuración)
+   ```bash
+   # Copia el contenido de .env.example y personaliza según necesites
+   # JWT_KEY=tu-clave-secreta-de-al-menos-32-caracteres
+   # VITE_API_BASE_URL=http://localhost:5202
+   ```
+
+3. **Construir y ejecutar los servicios**
+   ```bash
+   docker-compose up --build
+   ```
+
+4. **Acceder a la aplicación**
+   - **Frontend**: http://localhost:5173
+   - **Backend API**: http://localhost:5202
+   - **Swagger UI**: http://localhost:5202/swagger
+
+### Comandos útiles de Docker
+
+```bash
+# Ejecutar en segundo plano
+docker-compose up -d
+
+# Ver logs de todos los servicios
+docker-compose logs -f
+
+# Ver logs de un servicio específico
+docker-compose logs -f backend
+docker-compose logs -f frontend
+
+# Detener servicios
+docker-compose down
+
+# Detener y eliminar volúmenes (incluye la base de datos)
+docker-compose down -v
+
+# Reconstruir un servicio específico
+docker-compose build backend
+docker-compose up -d backend
+
+# Ver estado de los servicios
+docker-compose ps
+
+# Reiniciar un servicio
+docker-compose restart backend
+
+# Ejecutar comandos dentro de un contenedor
+docker-compose exec backend dotnet ef migrations add NombreMigracion
+docker-compose exec frontend sh
+```
+
+### Estructura Docker
+
+```
+indigotest/
+├── docker-compose.yml          # Orquestación de servicios
+├── backend/
+│   ├── Dockerfile              # Imagen del backend
+│   └── .dockerignore           # Archivos a ignorar en build
+├── frontend/
+│   ├── Dockerfile              # Imagen del frontend
+│   ├── nginx.conf              # Configuración de Nginx
+│   └── .dockerignore           # Archivos a ignorar en build
+└── .env                        # Variables de entorno (crear manualmente)
+```
+
+### Variables de Entorno
+
+Puedes personalizar la configuración creando un archivo `.env` en la raíz del proyecto:
+
+```env
+# JWT Configuration
+JWT_KEY=tu-clave-secreta-de-al-menos-32-caracteres
+
+# API Base URL (para el frontend en build time)
+VITE_API_BASE_URL=http://localhost:5202
+```
+
+### Notas importantes
+
+- **Base de datos**: La base de datos SQLite se persiste en `./backend/src/data/app.db` mediante un volumen de Docker
+- **Puertos**: 
+  - Backend: `5202` (mapeado al puerto `8080` interno)
+  - Frontend: `5173` (mapeado al puerto `80` interno de Nginx)
+- **Health checks**: Los servicios incluyen health checks para asegurar que estén listos antes de iniciar dependencias
+- **Red**: Los servicios se comunican a través de una red Docker interna llamada `indigotest-network`
+
 ## 📁 Estructura del Proyecto
 
 ```
 indigotest/
+├── docker-compose.yml        # Configuración Docker Compose
 ├── backend/
+│   ├── Dockerfile            # Imagen Docker del backend
+│   ├── .dockerignore         # Archivos ignorados en Docker
 │   └── src/
 │       ├── Api/              # API REST (Controllers, Program.cs)
 │       ├── Application/      # Lógica de negocio (Services, DTOs)
@@ -136,6 +244,9 @@ indigotest/
 │       ├── Infrastructure/   # Persistencia (DbContext, Repositories)
 │       └── data/             # Base de datos SQLite
 ├── frontend/
+│   ├── Dockerfile            # Imagen Docker del frontend
+│   ├── nginx.conf            # Configuración Nginx
+│   ├── .dockerignore         # Archivos ignorados en Docker
 │   └── src/
 │       ├── api/              # Cliente API
 │       ├── auth/             # Contexto de autenticación

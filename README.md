@@ -105,9 +105,9 @@ Antes de comenzar, asegúrate de tener instalado:
    dotnet run
    ```
    
-   El backend estará disponible en: `http://localhost:5000` o `https://localhost:5001`
+   El backend estará disponible en: `http://localhost:5202`
    
-   Swagger UI: `http://localhost:5000/swagger`
+   Swagger UI: `http://localhost:5202/swagger`
 
 2. **Iniciar el Frontend** (en otra terminal)
    ```bash
@@ -148,7 +148,7 @@ indigotest/
 
 Cuando el backend esté ejecutándose, puedes acceder a la documentación interactiva de la API en:
 
-**Swagger UI**: `http://localhost:5000/swagger`
+**Swagger UI**: `http://localhost:5202/swagger`
 
 La API incluye los siguientes endpoints:
 

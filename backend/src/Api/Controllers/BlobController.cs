@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Api.Services;
 
 namespace Api.Controllers;
 
@@ -25,7 +26,14 @@ public class BlobController : ControllerBase
             return BadRequest(new { message = "No se proporcionó ningún archivo" });
         }
 
-        // Validar que sea una imagen
+        // Validar tamaño (máximo 5MB) - hacerlo primero para evitar procesar archivos grandes
+        const long maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.Length > maxSize)
+        {
+            return BadRequest(new { message = "El archivo es demasiado grande. Máximo 5MB" });
+        }
+
+        // Validar extensión básica
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
         var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
         if (!allowedExtensions.Contains(fileExtension))
@@ -33,11 +41,30 @@ public class BlobController : ControllerBase
             return BadRequest(new { message = "Solo se permiten archivos de imagen (jpg, jpeg, png, gif, webp)" });
         }
 
-        // Validar tamaño (máximo 5MB)
-        const long maxSize = 5 * 1024 * 1024; // 5MB
-        if (file.Length > maxSize)
+        // Validar MIME type real usando magic numbers (file signatures)
+        string? detectedMimeType;
+        using (var fileStream = file.OpenReadStream())
         {
-            return BadRequest(new { message = "El archivo es demasiado grande. Máximo 5MB" });
+            var (isValid, mimeType, errorMessage) = FileTypeValidator.ValidateImageFile(fileStream, file.FileName);
+            
+            if (!isValid)
+            {
+                _logger.LogWarning("Intento de subir archivo inválido: {FileName}, Error: {Error}", file.FileName, errorMessage);
+                return BadRequest(new { message = errorMessage ?? "El archivo no es una imagen válida" });
+            }
+
+            detectedMimeType = mimeType;
+        }
+
+        // Verificar que el Content-Type declarado coincida con el detectado (opcional pero recomendado)
+        if (!string.IsNullOrEmpty(file.ContentType) && 
+            !string.IsNullOrEmpty(detectedMimeType) && 
+            file.ContentType != detectedMimeType)
+        {
+            _logger.LogWarning(
+                "Content-Type declarado ({DeclaredType}) no coincide con el tipo detectado ({DetectedType}) para archivo {FileName}",
+                file.ContentType, detectedMimeType, file.FileName);
+            // No rechazamos, pero registramos la advertencia
         }
 
         try
@@ -62,10 +89,13 @@ public class BlobController : ControllerBase
 
             // Subir el archivo usando HttpClient
             using var httpClient = new HttpClient();
-            using var fileStream = file.OpenReadStream();
-            using var content = new StreamContent(fileStream);
+            // Abrir el stream nuevamente para la subida
+            using var uploadStream = file.OpenReadStream();
+            using var content = new StreamContent(uploadStream);
             
-            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            // Usar el MIME type detectado en lugar del declarado por el cliente
+            var contentType = detectedMimeType ?? file.ContentType ?? "application/octet-stream";
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
             content.Headers.Add("x-ms-blob-type", "BlockBlob");
 
             var response = await httpClient.PutAsync(uploadUrl, content);

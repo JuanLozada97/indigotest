@@ -1,4 +1,3 @@
-
 import OpenAI from "openai";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
@@ -7,9 +6,13 @@ const repo = process.env.GITHUB_REPOSITORY;
 const prNumber = process.env.GITHUB_PR_NUMBER;
 const githubToken = process.env.GITHUB_TOKEN;
 const openaiApiKey = process.env.OPENAI_API_KEY;
+const baseSha = process.env.GITHUB_BASE_SHA;
+const headSha = process.env.GITHUB_HEAD_SHA;
 
-if (!repo || !prNumber || !githubToken || !openaiApiKey) {
-  console.error("Missing env vars: GITHUB_REPOSITORY, GITHUB_PR_NUMBER, GITHUB_TOKEN, OPENAI_API_KEY");
+if (!repo || !prNumber || !githubToken || !openaiApiKey || !baseSha || !headSha) {
+  console.error(
+    "Missing env vars: GITHUB_REPOSITORY, GITHUB_PR_NUMBER, GITHUB_TOKEN, OPENAI_API_KEY, GITHUB_BASE_SHA, GITHUB_HEAD_SHA"
+  );
   process.exit(1);
 }
 
@@ -22,16 +25,19 @@ function run(cmd) {
 async function main() {
   console.log(`Running AI review for PR #${prNumber} in ${repo}`);
 
-  // 1) Get diff (files changed in PR)
-  // We assume checkout has already fetched the merge commit context
-  const diff = run("git diff HEAD~1 HEAD || git diff");
+  let diff = "";
+  try {
+    diff = run(`git diff ${baseSha}...${headSha}`);
+  } catch (err) {
+    console.error("Error generating diff:", err.message);
+    process.exit(1);
+  }
 
   if (!diff) {
-    console.log("No diff found, skipping review.");
+    console.log("No diff found between base and head, skipping review.");
     return;
   }
 
-  // 2) Build prompt for OpenAI
   const prompt = `
 Eres un revisor de código experto en C#, .NET, JavaScript y buenas prácticas de arquitectura.
 
@@ -59,8 +65,7 @@ Formato de salida (markdown):
 
 Diff:
 
-${diff}
-`.slice(0, 28000); // Safety limit
+${diff}`.slice(0, 28000);
 
   console.log("Calling OpenAI API...");
 
@@ -78,7 +83,6 @@ ${diff}
   console.log("Review generated:");
   console.log(review);
 
-  // 3) Post comment to PR using GitHub API
   const body = {
     body: `🤖 **Revisión automática con IA**\n\n${review}`,
   };

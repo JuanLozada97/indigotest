@@ -68,6 +68,13 @@ export function SalesPage() {
       return;
     }
 
+    // Validar que todos los productos estén seleccionados
+    const invalidItems = saleItems.filter(item => item.productId === 0);
+    if (invalidItems.length > 0) {
+      setError("Todos los productos deben estar seleccionados antes de crear la venta");
+      return;
+    }
+
     try {
       setSaving(true);
       setError(null);

@@ -213,8 +213,6 @@ indigotest/
 Puedes personalizar la configuración creando un archivo `.env` en la raíz del proyecto:
 
 ```env
-# JWT Configuration
-JWT_KEY=tu-clave-secreta-de-al-menos-32-caracteres
 
 # API Base URL (para el frontend en build time)
 VITE_API_BASE_URL=http://localhost:5202
